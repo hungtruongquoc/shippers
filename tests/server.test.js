@@ -8,7 +8,9 @@ const {app} = require('./../server');
 const {Customers} = require('./../db/customers');
 
 beforeEach((done) => {
-   Customers.remove({}).then(() => done());
+   Customers.remove({}).then(() => {
+       return Customers.insertMany([{name: 'abc'}, {name: 'cdc'}]);
+   }).then(() => done());
 });
 
 describe('POST /customers', () => {
@@ -23,7 +25,7 @@ describe('POST /customers', () => {
                 return done(error);
             }
 
-            Customers.find().then((customers) => {
+            Customers.find({name: name}).then((customers) => {
                 expect(customers.length).toBe(1);
                 expect(customers[0].name).toBe(name);
                 done();
@@ -40,9 +42,20 @@ describe('POST /customers', () => {
             }
 
             Customers.find().then((customers) => {
-                expect(customers.length).toBe(0);
+                expect(customers.length).toBe(2);
                 done();
             }).catch((error) => done(error));
         })
     });
+});
+
+describe('GET /customers', () => {
+   it('should get all customers', (done) => {
+      request(app).get('/customers')
+          .expect(200)
+          .expect((response) => {
+            expect(response.body.customers.length).toBe(2);
+          })
+          .end(done);
+   });
 });
