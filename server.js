@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 
 var {mongoose} = require('./db/mongoose');
 var {Customers} = require('./db/customers');
+var {Orders} = require('./db/orders');
 
 const app = express();
 

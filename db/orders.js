@@ -3,11 +3,11 @@
  */
 var mongoose = require('mongoose');
 
-var Customers = mongoose.model('Orders', {
+var Orders = mongoose.model('Orders', {
     items: {
         type: Array,
         required: true
     }
 });
 
-module.exports = {Customers};
+module.exports = {Orders};
