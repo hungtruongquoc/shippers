@@ -29,3 +29,5 @@ app.get('/', function(request, response) {
 app.listen(3000, function() {
     console.log('Start listening on 3000');
 });
+
+module.exports = {app};
