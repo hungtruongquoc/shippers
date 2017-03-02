@@ -96,13 +96,23 @@ describe('GET /customers/:id', () => {
 });
 
 describe('DELETE /customers/:id', () => {
-    it('should get a customer with provided id', (done) => {
+    it('should remove a customer with provided id', (done) => {
         request(app).delete(`/customers/${customerList[0]._id.toHexString()}`)
             .expect(200)
             .expect((response) => {
                 expect(response.body.customer.name).toBe(customerList[0].name);
             })
-            .end(done);
+            .end((error, response) => {
+                if (error) {
+                    return done(error);
+                }
+                Customers.findById(customerList[0]._id.toHexString()).then((customer) => {
+                    expect(customer).toNotExist();
+                    done();
+                }).catch((error) => {
+                    done(error);
+                });
+            });
     });
     it('should get an undefined value with provided id but such customer does not exist',
         (done) => {
@@ -116,6 +126,37 @@ describe('DELETE /customers/:id', () => {
     it('should get an undefined value with wrong id',
         (done) => {
             request(app).delete('/customers/1234568')
+                .expect(400)
+                .expect((response) => {
+                    expect(response.body.customer).toBe(undefined);
+                })
+                .end(done);
+        });
+});
+
+describe('PATCH /customers/:id', () => {
+    it('should update a customer with provided id', (done) => {
+        let newName = 'Test patch';
+        request(app).patch(`/customers/${customerList[0]._id.toHexString()}`)
+            .send({name: newName})
+            .expect(200)
+            .expect((response) => {
+                expect(response.body.customer.name).toBe(newName);
+            })
+            .end(done);
+    });
+    it('should get an undefined value with provided id but such customer does not exist',
+        (done) => {
+            request(app).patch(`/customers/${(new ObjectID).toHexString()}`)
+                .expect(400)
+                .expect((response) => {
+                    expect(response.body.customer).toBe(undefined);
+                })
+                .end(done);
+        });
+    it('should get an undefined value with wrong id',
+        (done) => {
+            request(app).patch('/customers/1234568')
                 .expect(400)
                 .expect((response) => {
                     expect(response.body.customer).toBe(undefined);

@@ -1,9 +1,24 @@
 /**
  * Created by hungtruong on 2/22/17.
  */
+let env = process.env.NODE_ENV || 'development';
+
+switch (env) {
+    case 'development':
+        process.env.PORT = 3000;
+        process.env.MONGODB_URI = 'mongodb://localhost:27017/Shippers';
+        break;
+    case 'test':
+        process.env.PORT = 4000;
+        process.env.MONGODB_URI = 'mongodb://localhost:27017/ShippersTest';
+        break;
+}
+
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const _ = require('lodash');
 
 let {mongoose} = require('./db/mongoose');
 let {Customers} = require('./db/customers');
@@ -17,15 +32,39 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 
+app.patch('/customers/:id', (request, response) => {
+    let customerId = request.params.id;
+    // If the id is valid
+    if (ObjectID.isValid(customerId)) {
+        // Queries and updates customer
+        Customers.findByIdAndUpdate(customerId, {
+            $set: {name: request.body.name}
+        }, {new: true}).then((customer) => {
+            if (customer) {
+                response.send({customer})
+            }
+            else {
+                response.status(400).send();
+            }
+        }).catch((error) => {
+            response.status(400).send();
+        });
+    }
+    else {
+        // Else stops execution and return null
+        return response.status(400).send();
+    }
+});
+
 app.delete('/customers/:id', (request, response) => {
     let customerId = request.params.id;
     // If the id is valid
-    if(ObjectID.isValid(customerId)){
+    if (ObjectID.isValid(customerId)) {
         // Queries and deletes the customer with provided id
         Customers.findByIdAndRemove(customerId).then((customer) => {
             // Success
             // If such customer exists, sends the customer object back
-            if(customer) {
+            if (customer) {
                 response.send({customer: customer});
             }
             else {
@@ -50,12 +89,12 @@ app.delete('/customers/:id', (request, response) => {
 app.get('/customers/:id', (request, response) => {
     let customerId = request.params.id;
     // If the id is valid
-    if(ObjectID.isValid(customerId)){
+    if (ObjectID.isValid(customerId)) {
         // Queries the customer with provided id
         Customers.findById(customerId).then((customer) => {
             // Success
             // If such customer exists, sends the customer object back
-            if(customer) {
+            if (customer) {
                 response.send({customer: customer});
             }
             else {
@@ -75,7 +114,7 @@ app.get('/customers/:id', (request, response) => {
     }
 });
 
-app.post('/customers', function(request, response) {
+app.post('/customers', function (request, response) {
     console.log(request.body);
     let customer = new Customers(request.body);
     customer.save().then((doc) => {
@@ -93,11 +132,11 @@ app.get('/customers', (request, response) => {
     });
 });
 
-app.get('/', function(request, response) {
+app.get('/', function (request, response) {
     response.send('Test data');
 });
 
-app.listen(port, function() {
+app.listen(port, function () {
     console.log(`Start listening on ${port}`);
 });
 
