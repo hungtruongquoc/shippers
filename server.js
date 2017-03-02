@@ -17,6 +17,36 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 
+app.delete('/customers/:id', (request, response) => {
+    let customerId = request.params.id;
+    // If the id is valid
+    if(ObjectID.isValid(customerId)){
+        // Queries and deletes the customer with provided id
+        Customers.findByIdAndRemove(customerId).then((customer) => {
+            // Success
+            // If such customer exists, sends the customer object back
+            if(customer) {
+                response.send({customer: customer});
+            }
+            else {
+                // Else no customer with provided id exists,
+                // sends the 400 status and null object
+                response.status(400).send();
+            }
+        }, (error) => {
+            // Error
+            // Return a 400 and send back null
+            response.status(400).send();
+        }).catch((error) => {
+            response.status(400).send();
+        });
+    }
+    else {
+        // Else stops execution and return null
+        return response.status(400).send();
+    }
+});
+
 app.get('/customers/:id', (request, response) => {
     let customerId = request.params.id;
     // If the id is valid

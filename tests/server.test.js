@@ -94,3 +94,32 @@ describe('GET /customers/:id', () => {
                 .end(done);
         });
 });
+
+describe('DELETE /customers/:id', () => {
+    it('should get a customer with provided id', (done) => {
+        request(app).delete(`/customers/${customerList[0]._id.toHexString()}`)
+            .expect(200)
+            .expect((response) => {
+                expect(response.body.customer.name).toBe(customerList[0].name);
+            })
+            .end(done);
+    });
+    it('should get an undefined value with provided id but such customer does not exist',
+        (done) => {
+            request(app).delete(`/customers/${(new ObjectID).toHexString()}`)
+                .expect(400)
+                .expect((response) => {
+                    expect(response.body.customer).toBe(undefined);
+                })
+                .end(done);
+        });
+    it('should get an undefined value with wrong id',
+        (done) => {
+            request(app).delete('/customers/1234568')
+                .expect(400)
+                .expect((response) => {
+                    expect(response.body.customer).toBe(undefined);
+                })
+                .end(done);
+        });
+});
