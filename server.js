@@ -12,6 +12,10 @@ const app = express();
 
 app.use(bodyParser.json());
 
+app.get('/customers/:id', (request, response) => {
+    response.send(request.params);
+});
+
 app.post('/customers', function(request, response) {
     console.log(request.body);
     let customer = new Customers(request.body);

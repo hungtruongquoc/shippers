@@ -59,3 +59,14 @@ describe('GET /customers', () => {
           .end(done);
    });
 });
+
+describe('GET /customers/:id', () => {
+    it('should get a customer with provided id', (done) => {
+       request(app).get('/customers/1')
+           .expect(200)
+           .expect((response) => {
+            expect(response.body.customer.length).toBe(1);
+           })
+           .end(done);
+    });
+});
