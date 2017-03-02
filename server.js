@@ -11,7 +11,11 @@ let {Orders} = require('./db/orders');
 
 const app = express();
 
+// Sets up port for the app
+const port = process.env.PORT || 3000;
+
 app.use(bodyParser.json());
+
 
 app.get('/customers/:id', (request, response) => {
     let customerId = request.params.id;
@@ -63,8 +67,8 @@ app.get('/', function(request, response) {
     response.send('Test data');
 });
 
-app.listen(3000, function() {
-    console.log('Start listening on 3000');
+app.listen(port, function() {
+    console.log(`Start listening on ${port}`);
 });
 
 module.exports = {app};

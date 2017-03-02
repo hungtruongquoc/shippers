@@ -4,12 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
     "test": "mocha tests/**/*.test.js",
     "test-watch":"nodemon --exec 'npm test'"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hungtruongquoc/shippers.git"
+  },
+  "engines": {
+    "node": "6.10.0"
   },
   "author": "Hung Truong",
   "license": "ISC",
