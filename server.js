@@ -3,17 +3,42 @@
  */
 const express = require('express');
 const bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
-var {mongoose} = require('./db/mongoose');
-var {Customers} = require('./db/customers');
-var {Orders} = require('./db/orders');
+let {mongoose} = require('./db/mongoose');
+let {Customers} = require('./db/customers');
+let {Orders} = require('./db/orders');
 
 const app = express();
 
 app.use(bodyParser.json());
 
 app.get('/customers/:id', (request, response) => {
-    response.send(request.params);
+    let customerId = request.params.id;
+    // If the id is valid
+    if(ObjectID.isValid(customerId)){
+        // Queries the customer with provided id
+        Customers.findById(customerId).then((customer) => {
+            // Success
+            // If such customer exists, sends the customer object back
+            if(customer) {
+                response.send({customer: customer});
+            }
+            else {
+                // Else no customer with provided id exists,
+                // sends the 400 status and null object
+                response.status(400).send();
+            }
+        }, (error) => {
+            // Error
+            // Return a 400 and send back null
+            response.status(400).send();
+        });
+    }
+    else {
+        // Else stops execution and return null
+        return response.status(400).send();
+    }
 });
 
 app.post('/customers', function(request, response) {
