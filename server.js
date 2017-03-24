@@ -20,6 +20,18 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
+app.post('/users', (request, response) => {
+  let body = _.pick(request.body, ['email', 'password']);
+  let user = new User(body);
+
+  user.save().then(() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    response.header('x-auth', token).send(user);
+  }).catch((e) => {
+    response.status(400).send(e);
+  });
+});
 
 app.patch('/customers/:id', (request, response) => {
   let customerId = request.params.id;
@@ -104,7 +116,6 @@ app.get('/customers/:id', (request, response) => {
 });
 
 app.post('/customers', function (request, response) {
-  console.log(request.body);
   let customer = new Customers(request.body);
   customer.save().then((doc) => {
     response.send(doc);

@@ -7,6 +7,7 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Customers} = require('./../db/customers');
+const {User} = require('./../db/users');
 
 const customerList = [
   {_id: new ObjectID(), name: 'abc'},
@@ -17,6 +18,7 @@ beforeEach((done) => {
   Customers.remove({}).then(() => {
     return Customers.insertMany(customerList);
   }).then(() => done());
+  User.remove({});
 });
 
 describe('POST /customers', () => {
@@ -166,20 +168,21 @@ describe('PATCH /customers/:id', () => {
 });
 
 describe('POST /users', () => {
-  it('should create a new users', (done) => {
-    let name = 'test';
-    request(app).post('/users').send({name: name})
+  it('should create a new user', (done) => {
+    let newUser = {email: 'hoa@gmail.com', password: 'testpass12'};
+    request(app).post('/users').send(newUser)
       .expect(200)
       .expect((response) => {
-        expect(response.body.name).toBe(name);
+        expect(response.body.email).toBe(newUser.email);
       }).end((error, response) => {
+
       if (error) {
         return done(error);
       }
 
-      Customers.find({name: name}).then((customers) => {
-        expect(customers.length).toBe(1);
-        expect(customers[0].name).toBe(name);
+      User.find({email: newUser.email}).then((users) => {
+        expect(users.length).toBe(1);
+        expect(users[0].email).toBe(newUser.email);
         done();
       }).catch((e) => done(e));
     });
